@@ -3,40 +3,33 @@ import 'package:flutter/material.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
 import 'package:vehicles_app/helpers/api_helper.dart';
-import 'package:vehicles_app/models/procedure.dart';
 import 'package:vehicles_app/models/response.dart';
 import 'package:vehicles_app/models/token.dart';
+import 'package:vehicles_app/models/user.dart';
 
-class ProcedureScreen extends StatefulWidget {
+class UserScreen extends StatefulWidget {
   final Token token;
-  final Procedure procedure;
+  final User user;
 
-  ProcedureScreen({required this.token, required this.procedure});
+  UserScreen({required this.token, required this.user});
 
   @override
-  _ProcedureScreenState createState() => _ProcedureScreenState();
+  _UserScreenState createState() => _UserScreenState();
 }
 
-class _ProcedureScreenState extends State<ProcedureScreen> {
+class _UserScreenState extends State<UserScreen> {
   bool _showLoader = false;
 
-  String _description = '';
-  String _descriptionError = '';
-  bool _descriptionShowError = false;
-  TextEditingController _descriptionController = TextEditingController();
-
-  String _price = '';
-  String _priceError = '';
-  bool _priceShowError = false;
-  TextEditingController _priceController = TextEditingController();
+  String _firstName = '';
+  String _firstNameError = '';
+  bool _firstNameShowError = false;
+  TextEditingController _firstNameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _description = widget.procedure.description;
-    _descriptionController.text = _description;
-    _price = widget.procedure.price.toString();
-    _priceController.text = _price;
+    _firstName = widget.user.fullName;
+    _firstNameController.text = _firstName;
   }
 
   @override
@@ -44,17 +37,16 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     return Scaffold(
       appBar: AppBar( 
         title: Text(
-          widget.procedure.id == 0 
-          ? 'Nuevo procedimiento' 
-          : widget.procedure.description
+          widget.user.id.isEmpty
+          ? 'Nuevo usuario' 
+          : widget.user.fullName
         ),
       ),
       body: Stack(
         children: [
           Column(
             children: <Widget>[
-              _showDescription(),
-              _showPrice(),
+              _showFirstName(),
               _showButtons(),
             ],
           ),
@@ -64,45 +56,23 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     );
   }
 
-  Widget _showDescription() {
+  Widget _showFirstName() {
     return Container(
       padding: EdgeInsets.all(10),
       child: TextField(
         autofocus: true,
-        controller: _descriptionController,
+        controller: _firstNameController,
         decoration: InputDecoration(
-          hintText: 'Ingresa una descripcion...',
-          labelText: 'Descripcion',
-          errorText: _descriptionShowError ? _descriptionError : null,
-          suffixIcon: Icon(Icons.description),
+          hintText: 'Ingresa nombres...',
+          labelText: 'Nombres',
+          errorText: _firstNameShowError ? _firstNameError : null,
+          suffixIcon: Icon(Icons.person),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10)
           ),
         ),
         onChanged: (value) {
-          _description = value;
-        },
-      ),
-    );
-  }
-
-  Widget _showPrice() {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: TextField(
-        keyboardType: TextInputType.numberWithOptions(decimal: true, signed: false),
-        controller: _priceController,
-        decoration: InputDecoration(
-          hintText: 'Ingresa un precio...',
-          labelText: 'Precio',
-          errorText: _priceShowError ? _priceError : null,
-          suffixIcon: Icon(Icons.attach_money),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10)
-          ),
-        ),
-        onChanged: (value) {
-          _price = value;
+          _firstName = value;
         },
       ),
     );
@@ -127,10 +97,10 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
               onPressed: () => _save(),
             ),
           ),
-          widget.procedure.id == 0 
+          widget.user.id.isEmpty 
             ? Container() 
             : SizedBox(width: 20,),
-          widget.procedure.id == 0 
+          widget.user.id.isEmpty
             ? Container() 
             : Expanded(
                 child: ElevatedButton(
@@ -155,41 +125,20 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
       return;
     }
 
-    widget.procedure.id == 0 ? _addRecord() : _saveRecord();
+    widget.user.id.isEmpty ? _addRecord() : _saveRecord();
   }
 
   bool _validateFields() {
     bool isValid = true;
 
-    if (_description.isEmpty) {
+    if (_firstName.isEmpty) {
       isValid = false;
-      _descriptionShowError = true;
-      _descriptionError = 'Debes ingresar una descripcion.';
+      _firstNameShowError = true;
+      _firstNameError = 'Debes ingresar al menos un nombre.';
 
     } else {
-      _descriptionShowError = false;
+      _firstNameShowError = false;
     }
-
-    if (_price.isEmpty) {
-      isValid = false;
-      _priceShowError = true;
-      _priceError = 'Debes ingresar un precio.';
-
-    } else {
-
-      double price = double.parse(_price);
-
-      if (price <= 0) {
-        isValid = false;
-        _priceShowError = true;
-        _priceError = 'Debes ingresar un precio mayor a 0';
-
-      } else {
-        _priceShowError = false;
-      }
-    }
-
-    
 
     setState(() { });
     return isValid;
@@ -201,12 +150,11 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     });
 
     Map<String, dynamic> request = {
-      'description': _description,
-      'price': double.parse(_price),
+      'firstName': _firstName,
     };
 
     Response response = await ApiHelper.post(
-      '/api/Procedures/', 
+      '/api/Users/', 
       request, 
       widget.token.token
     );
@@ -236,14 +184,13 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     });
 
     Map<String, dynamic> request = {
-      'id': widget.procedure.id,
-      'description': _description,
-      'price': double.parse(_price),
+      'id': widget.user.id,
+      'firstName': _firstName,
     };
 
     Response response = await ApiHelper.put(
-      '/api/Procedures/', 
-      widget.procedure.id.toString(), 
+      '/api/Users/', 
+      widget.user.id, 
       request, 
       widget.token.token
     );
@@ -289,8 +236,8 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     });
 
     Response response = await ApiHelper.delete(
-      '/api/Procedures/', 
-      widget.procedure.id.toString(), 
+      '/api/Users/', 
+      widget.user.id, 
       widget.token.token
     );
 

@@ -3,21 +3,22 @@ import 'package:flutter/material.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
 import 'package:vehicles_app/helpers/api_helper.dart';
-import 'package:vehicles_app/models/procedure.dart';
+import 'package:vehicles_app/models/document_type.dart';
 import 'package:vehicles_app/models/response.dart';
 import 'package:vehicles_app/models/token.dart';
+import 'package:vehicles_app/models/vehicle_type.dart';
 
-class ProcedureScreen extends StatefulWidget {
+class VehicleTypeScreen extends StatefulWidget {
   final Token token;
-  final Procedure procedure;
+  final VehicleType vehicleType;
 
-  ProcedureScreen({required this.token, required this.procedure});
+  VehicleTypeScreen({required this.token, required this.vehicleType});
 
   @override
-  _ProcedureScreenState createState() => _ProcedureScreenState();
+  _VehicleTypeScreenState createState() => _VehicleTypeScreenState();
 }
 
-class _ProcedureScreenState extends State<ProcedureScreen> {
+class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
   bool _showLoader = false;
 
   String _description = '';
@@ -25,18 +26,11 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
   bool _descriptionShowError = false;
   TextEditingController _descriptionController = TextEditingController();
 
-  String _price = '';
-  String _priceError = '';
-  bool _priceShowError = false;
-  TextEditingController _priceController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
-    _description = widget.procedure.description;
+    _description = widget.vehicleType.description;
     _descriptionController.text = _description;
-    _price = widget.procedure.price.toString();
-    _priceController.text = _price;
   }
 
   @override
@@ -44,9 +38,9 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     return Scaffold(
       appBar: AppBar( 
         title: Text(
-          widget.procedure.id == 0 
-          ? 'Nuevo procedimiento' 
-          : widget.procedure.description
+          widget.vehicleType.id == 0 
+          ? 'Nuevo tipo de vehiculo' 
+          : widget.vehicleType.description
         ),
       ),
       body: Stack(
@@ -54,7 +48,6 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
           Column(
             children: <Widget>[
               _showDescription(),
-              _showPrice(),
               _showButtons(),
             ],
           ),
@@ -86,28 +79,6 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     );
   }
 
-  Widget _showPrice() {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: TextField(
-        keyboardType: TextInputType.numberWithOptions(decimal: true, signed: false),
-        controller: _priceController,
-        decoration: InputDecoration(
-          hintText: 'Ingresa un precio...',
-          labelText: 'Precio',
-          errorText: _priceShowError ? _priceError : null,
-          suffixIcon: Icon(Icons.attach_money),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10)
-          ),
-        ),
-        onChanged: (value) {
-          _price = value;
-        },
-      ),
-    );
-  }
-
   Widget _showButtons() {
     return Container(
       margin: EdgeInsets.only(left: 10, right: 10),
@@ -127,10 +98,10 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
               onPressed: () => _save(),
             ),
           ),
-          widget.procedure.id == 0 
+          widget.vehicleType.id == 0 
             ? Container() 
             : SizedBox(width: 20,),
-          widget.procedure.id == 0 
+          widget.vehicleType.id == 0 
             ? Container() 
             : Expanded(
                 child: ElevatedButton(
@@ -155,7 +126,7 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
       return;
     }
 
-    widget.procedure.id == 0 ? _addRecord() : _saveRecord();
+    widget.vehicleType.id == 0 ? _addRecord() : _saveRecord();
   }
 
   bool _validateFields() {
@@ -170,27 +141,6 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
       _descriptionShowError = false;
     }
 
-    if (_price.isEmpty) {
-      isValid = false;
-      _priceShowError = true;
-      _priceError = 'Debes ingresar un precio.';
-
-    } else {
-
-      double price = double.parse(_price);
-
-      if (price <= 0) {
-        isValid = false;
-        _priceShowError = true;
-        _priceError = 'Debes ingresar un precio mayor a 0';
-
-      } else {
-        _priceShowError = false;
-      }
-    }
-
-    
-
     setState(() { });
     return isValid;
   }
@@ -202,11 +152,10 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
 
     Map<String, dynamic> request = {
       'description': _description,
-      'price': double.parse(_price),
     };
 
     Response response = await ApiHelper.post(
-      '/api/Procedures/', 
+      '/api/VehicleTypes/', 
       request, 
       widget.token.token
     );
@@ -236,14 +185,13 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     });
 
     Map<String, dynamic> request = {
-      'id': widget.procedure.id,
+      'id': widget.vehicleType.id,
       'description': _description,
-      'price': double.parse(_price),
     };
 
     Response response = await ApiHelper.put(
-      '/api/Procedures/', 
-      widget.procedure.id.toString(), 
+      '/api/VehicleTypes/', 
+      widget.vehicleType.id.toString(), 
       request, 
       widget.token.token
     );
@@ -289,8 +237,8 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     });
 
     Response response = await ApiHelper.delete(
-      '/api/Procedures/', 
-      widget.procedure.id.toString(), 
+      '/api/VehicleTypes/', 
+      widget.vehicleType.id.toString(), 
       widget.token.token
     );
 

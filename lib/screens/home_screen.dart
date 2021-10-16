@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:vehicles_app/models/token.dart';
+import 'package:vehicles_app/screens/brands_screen.dart';
 import 'package:vehicles_app/screens/login_screen.dart';
 import 'package:vehicles_app/screens/procedures_screen.dart';
+import 'package:vehicles_app/screens/users_screen.dart';
+import 'package:vehicles_app/screens/vehicle_types_screen.dart';
+
+import 'document_types_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final Token token;
@@ -69,7 +74,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ListTile(
             leading: Icon(Icons.two_wheeler),
             title: const Text('Marcas'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => BrandsScreen(token: widget.token,)
+                )
+              );  
+            },
           ),
           ListTile(
             leading: Icon(Icons.precision_manufacturing),
@@ -86,17 +98,38 @@ class _HomeScreenState extends State<HomeScreen> {
           ListTile(
             leading: Icon(Icons.badge),
             title: const Text('Tipos de Documento'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => DocumentTypesScreen(token: widget.token,)
+                )
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.toys),
             title: const Text('Tipos de Vehiculos'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => VehicleTypesScreen(token: widget.token,)
+                )
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.people),
             title: const Text('Usuarios'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => UsersScreen(token: widget.token,)
+                )
+              );  
+            },
           ),
           Divider(
             color: Colors.black,
