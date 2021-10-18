@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
 import 'package:vehicles_app/helpers/constants.dart';
@@ -16,11 +19,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String _email = 'luis@yopmail.com';
+  String _email = '';
   String _emailError = '';
   bool _emailShowError = false;
 
-  String _password = '123456';
+  String _password = '';
   String _passwordError = '';
   bool _passwordShowError = false;
 
@@ -34,16 +37,19 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  _showLogo(),
-                  SizedBox(height: 20),
-                  _showEmail(),
-                  _showPassword(),
-                  _showRememberme(),
-                  _showButtons(),
-                ],
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(height: 40),
+                    _showLogo(),
+                    SizedBox(height: 20),
+                    _showEmail(),
+                    _showPassword(),
+                    _showRememberme(),
+                    _showButtons(),
+                  ],
+                ),
               ),
           _showLoader ? LoaderComponent(text: 'Por favor espere...') : Container(),
         ],
@@ -55,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Image(
       image: AssetImage('assets/vehiclePhoto.png'),
       width: 300,
+      fit: BoxFit.fill,
     );
   }
 
@@ -173,6 +180,24 @@ class _LoginScreenState extends State<LoginScreen> {
       _showLoader = true;
     });
 
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: 'Verifica que estes conectado a internet',
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+
     Map<String, dynamic> request = {
         "userName": _email,
         "password": _password
@@ -201,6 +226,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     var body = response.body;
+
+    if (_rememberme) {
+      _storeUser(body);
+    }
+
     var decodedJson = jsonDecode(body);
     var token = Token.fromJson(decodedJson);
     Navigator.pushReplacement(
@@ -242,5 +272,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() { });
     return isValid;
+  }
+
+  void _storeUser(String body) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isRemembered', true);
+    await prefs.setString('userBody', body);
   }
 }

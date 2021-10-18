@@ -1,11 +1,20 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:camera/camera.dart';
+import 'package:connectivity/connectivity.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
 import 'package:vehicles_app/helpers/api_helper.dart';
+import 'package:vehicles_app/models/document_type.dart';
 import 'package:vehicles_app/models/response.dart';
 import 'package:vehicles_app/models/token.dart';
 import 'package:vehicles_app/models/user.dart';
+import 'package:vehicles_app/screens/take_picture_screen.dart';
 
 class UserScreen extends StatefulWidget {
   final Token token;
@@ -19,17 +28,68 @@ class UserScreen extends StatefulWidget {
 
 class _UserScreenState extends State<UserScreen> {
   bool _showLoader = false;
+  bool _photoChanged = false;
+  late XFile _image;
 
   String _firstName = '';
   String _firstNameError = '';
   bool _firstNameShowError = false;
   TextEditingController _firstNameController = TextEditingController();
 
+  String _lastName = '';
+  String _lastNameError = '';
+  bool _lastNameShowError = false;
+  TextEditingController _lastNameController = TextEditingController();
+
+  int _documentTypeId = 0;
+  String _documentTypeIdError = '';
+  bool _documentTypeIdShowError = false;
+  List<DocumentType> _documentTypes = [];
+
+  String _document = '';
+  String _documentError = '';
+  bool _documentShowError = false;
+  TextEditingController _documentController = TextEditingController();
+
+  String _address = '';
+  String _addressError = '';
+  bool _addressShowError = false;
+  TextEditingController _addressController = TextEditingController();
+
+  String _email = '';
+  String _emailError = '';
+  bool _emailShowError = false;
+  TextEditingController _emailController = TextEditingController();
+
+  String _phoneNumber = '';
+  String _phoneNumberError = '';
+  bool _phoneNumberShowError = false;
+  TextEditingController _phoneNumberController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    _firstName = widget.user.fullName;
+    _getDocumentTypes();
+
+    _firstName = widget.user.firstName;
     _firstNameController.text = _firstName;
+    
+    _lastName = widget.user.lastName;
+    _lastNameController.text = _lastName;
+    
+    _documentTypeId = widget.user.documentType.id;
+    
+    _address = widget.user.address;
+    _addressController.text = _address;    
+
+    _document = widget.user.document;
+    _documentController.text = _document;
+    
+    _email = widget.user.email;
+    _emailController.text = _email;
+    
+    _phoneNumber = widget.user.phoneNumber;
+    _phoneNumberController.text = _phoneNumber;
   }
 
   @override
@@ -44,11 +104,20 @@ class _UserScreenState extends State<UserScreen> {
       ),
       body: Stack(
         children: [
-          Column(
-            children: <Widget>[
-              _showFirstName(),
-              _showButtons(),
-            ],
+          SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                _showPhoto(),
+                _showFirstName(),
+                _showLastName(),
+                _showDocumentType(),
+                _showDocument(),
+                _showEmail(),
+                _showAddress(),
+                _showPhoneNumber(),
+                _showButtons(),
+              ],
+            ),
           ),
           _showLoader ? LoaderComponent(text: 'Por favor espere...',) : Container(),
         ],
@@ -140,6 +209,64 @@ class _UserScreenState extends State<UserScreen> {
       _firstNameShowError = false;
     }
 
+    if (_lastName.isEmpty) {
+      isValid = false;
+      _lastNameShowError = true;
+      _lastNameError = 'Debes ingresar al menos un apellido.';
+
+    } else {
+      _lastNameShowError = false;
+    }
+
+    if (_documentTypeId == 0) {
+      isValid = false;
+      _documentTypeIdShowError = true;
+      _documentTypeIdError = 'Debes seleccionar un tipo de documento.';
+
+    } else {
+      _documentTypeIdShowError = false;
+    }
+
+    if (_document.isEmpty) {
+      isValid = false;
+      _documentShowError = true;
+      _documentError = 'Debes ingresar un documento.';
+
+    } else {
+      _documentShowError = false;
+    }
+
+    if (_email.isEmpty) {
+      isValid = false;
+      _emailShowError = true;
+      _emailError = 'Debes ingresar un email';
+
+    } else if (!EmailValidator.validate(_email)) {
+      isValid = false;
+      _emailShowError = true;
+      _emailError = 'Debes ingresar un email valido';
+    } else {
+      _emailShowError = false;
+    }
+
+    if (_address.isEmpty) {
+      isValid = false;
+      _addressShowError = true;
+      _addressError = 'Debes ingresar una direccion.';
+
+    } else {
+      _addressShowError = false;
+    }
+
+    if (_phoneNumber.isEmpty) {
+      isValid = false;
+      _phoneNumberShowError = true;
+      _phoneNumberError = 'Debes ingresar un telefono.';
+
+    } else {
+      _phoneNumberShowError = false;
+    }
+
     setState(() { });
     return isValid;
   }
@@ -149,14 +276,46 @@ class _UserScreenState extends State<UserScreen> {
       _showLoader = true;
     });
 
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: 'Verifica que estes conectado a internet',
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+
+    String base64image = '';
+    if (_photoChanged) {
+      List<int> imageBytes = await _image.readAsBytes();
+      base64image = base64Encode(imageBytes);
+    }
+
     Map<String, dynamic> request = {
       'firstName': _firstName,
+      'lastName': _lastName,
+      'document': _document,
+      'documentTypeId': _documentTypeId,
+      'email': _email,
+      'userName': _email,
+      'address': _address,
+      'phoneNumber': _phoneNumber,
+      'image': base64image,
     };
 
     Response response = await ApiHelper.post(
       '/api/Users/', 
       request, 
-      widget.token.token
+      widget.token
     );
 
     setState(() {
@@ -183,16 +342,48 @@ class _UserScreenState extends State<UserScreen> {
       _showLoader = true;
     });
 
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: 'Verifica que estes conectado a internet',
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+
+    String base64image = '';
+    if (_photoChanged) {
+      List<int> imageBytes = await _image.readAsBytes();
+      base64image = base64Encode(imageBytes);
+    }
+
     Map<String, dynamic> request = {
       'id': widget.user.id,
       'firstName': _firstName,
+      'lastName': _lastName,
+      'documentTypeId': _documentTypeId,
+      'document': _document,
+      'email': _email,
+      'userName': _email,
+      'address': _address,
+      'phoneNumber': _phoneNumber,
+      'image': base64image,
     };
 
     Response response = await ApiHelper.put(
       '/api/Users/', 
       widget.user.id, 
       request, 
-      widget.token.token
+      widget.token
     );
 
     setState(() {
@@ -235,10 +426,28 @@ class _UserScreenState extends State<UserScreen> {
       _showLoader = true;
     });
 
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: 'Verifica que estes conectado a internet',
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+
     Response response = await ApiHelper.delete(
       '/api/Users/', 
       widget.user.id, 
-      widget.token.token
+      widget.token
     );
 
     setState(() {
@@ -258,5 +467,303 @@ class _UserScreenState extends State<UserScreen> {
     }
 
     Navigator.pop(context, 'yes');
+  }
+
+  Widget _showPhoto() {
+    return Stack(
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(top: 10),
+          child: widget.user.id.isEmpty && !_photoChanged
+            ? Image(
+                image: AssetImage('assets/noimage.png'),
+                height: 160,
+                width: 160,
+                fit: BoxFit.cover,
+              ) 
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(80),
+                child: _photoChanged 
+                ? Image.file(
+                    File(_image.path),
+                    height: 160,
+                    width: 160,
+                fit: BoxFit.cover,
+                  ) 
+                : FadeInImage(
+                    placeholder: AssetImage('assets/vehiclePhoto.png'), 
+                    image: NetworkImage(widget.user.imageFullPath),
+                    width: 160,
+                    height: 160,
+                    fit: BoxFit.cover
+                  ),
+              ),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 100,
+          child: InkWell(
+            onTap: () => _takePicture(),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: Container(
+                color: Colors.green[50],
+                height: 60,
+                width: 60,
+                child: Icon(
+                  Icons.photo_camera,
+                  size: 40,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          child: InkWell(
+            onTap: () => _selectPicture(),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: Container(
+                color: Colors.green[50],
+                height: 60,
+                width: 60,
+                child: Icon(
+                  Icons.image,
+                  size: 40,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ]
+    );
+  }
+
+  Widget _showLastName() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        controller: _lastNameController,
+        decoration: InputDecoration(
+          hintText: 'Ingresa apellidos...',
+          labelText: 'Apellidos',
+          errorText: _lastNameShowError ? _lastNameError : null,
+          suffixIcon: Icon(Icons.person),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10)
+          ),
+        ),
+        onChanged: (value) {
+          _lastName = value;
+        },
+      ),
+    );
+  }
+
+  Widget _showDocumentType() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: _documentTypes.length == 0 
+      ? Text('Cargando tipos de documentos...')
+      : DropdownButtonFormField(
+        items: _getComboDocumentTypes(),
+        value: _documentTypeId,
+        onChanged: (option) {
+          setState(() {
+            _documentTypeId = option as int;
+          });
+        },
+        decoration: InputDecoration(
+          hintText: 'Seleccione un tipo de documento...',
+          labelText: 'Tipo documento',
+          errorText: _documentTypeIdShowError ? _documentTypeIdError : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10)
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _showDocument() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        controller: _documentController,
+        decoration: InputDecoration(
+          hintText: 'Ingresa documento...',
+          labelText: 'Documento',
+          errorText: _documentShowError ? _documentError : null,
+          suffixIcon: Icon(Icons.assignment_ind),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10)
+          ),
+        ),
+        onChanged: (value) {
+          _document = value;
+        },
+      ),
+    );
+  }
+
+  Widget _showEmail() {
+      return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        enabled: widget.user.id.isEmpty,
+        controller: _emailController,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+          hintText: 'Ingresa email...',
+          labelText: 'Email',
+          errorText: _emailShowError ? _emailError : null,
+          suffixIcon: Icon(Icons.email),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10)
+          ),
+        ),
+        onChanged: (value) {
+          _email = value;
+        },
+      ),
+    );
+  }
+
+  Widget _showAddress() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        controller: _addressController,
+        keyboardType: TextInputType.streetAddress,
+        decoration: InputDecoration(
+          hintText: 'Ingresa direccion...',
+          labelText: 'Direccion',
+          errorText: _addressShowError ? _addressError : null,
+          suffixIcon: Icon(Icons.home),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10)
+          ),
+        ),
+        onChanged: (value) {
+          _address = value;
+        },
+      ),
+    );
+  }
+
+  Widget _showPhoneNumber() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: TextField(
+        controller: _phoneNumberController,
+        keyboardType: TextInputType.phone,
+        decoration: InputDecoration(
+          hintText: 'Ingresa telefono...',
+          labelText: 'Telefono',
+          errorText: _phoneNumberShowError ? _phoneNumberError : null,
+          suffixIcon: Icon(Icons.phone),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10)
+          ),
+        ),
+        onChanged: (value) {
+          _phoneNumber = value;
+        },
+      ),
+    );
+  }
+
+    Future<Null> _getDocumentTypes() async {
+    setState(() {
+      _showLoader = true;
+    });
+
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: 'Verifica que estes conectado a internet',
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+
+    Response response = await ApiHelper.getDocumentTypes(widget.token);
+
+    setState(() {
+        _showLoader = false;
+    });
+
+    if (!response.isSuccess) {
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: response.message,
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+    setState(() {
+      _documentTypes = response.result;
+    });
+  }
+
+  List<DropdownMenuItem<int>> _getComboDocumentTypes() {
+    List<DropdownMenuItem<int>> list = [];
+    list.add(DropdownMenuItem(
+      child: Text('Seleccione un tipo de documento...'),
+      value: 0,
+    ));
+    _documentTypes.forEach((documentType) { 
+      list.add(DropdownMenuItem(
+      child: Text(documentType.description),
+      value: documentType.id,
+    ));
+    });
+    return list;
+  }
+
+  void _takePicture() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    final cameras = await availableCameras();
+    final firstCamera = cameras.first;
+    Response? response = await Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (context) => TakePictureScreen(camera: firstCamera,)
+      )
+    );
+
+    if (response != null) {
+      setState(() {
+        _photoChanged = true;
+        _image = response.result;
+      });
+    }
+  }
+
+  void _selectPicture() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _photoChanged = true;
+        _image = image;
+      });
+    }
   }
 }

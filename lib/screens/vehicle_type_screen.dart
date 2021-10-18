@@ -1,4 +1,5 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
@@ -150,6 +151,24 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       _showLoader = true;
     });
 
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: 'Verifica que estes conectado a internet',
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+
     Map<String, dynamic> request = {
       'description': _description,
     };
@@ -157,7 +176,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     Response response = await ApiHelper.post(
       '/api/VehicleTypes/', 
       request, 
-      widget.token.token
+      widget.token
     );
 
     setState(() {
@@ -184,6 +203,24 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       _showLoader = true;
     });
 
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: 'Verifica que estes conectado a internet',
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+
     Map<String, dynamic> request = {
       'id': widget.vehicleType.id,
       'description': _description,
@@ -193,7 +230,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       '/api/VehicleTypes/', 
       widget.vehicleType.id.toString(), 
       request, 
-      widget.token.token
+      widget.token
     );
 
     setState(() {
@@ -236,10 +273,28 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
       _showLoader = true;
     });
 
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+
+      await showAlertDialog(
+        context: context,
+        title: 'Error',
+        message: 'Verifica que estes conectado a internet',
+        actions: <AlertDialogAction>[
+          AlertDialogAction(key: null, label: 'Aceptar'),
+        ]
+      );
+      return;
+    }
+
     Response response = await ApiHelper.delete(
       '/api/VehicleTypes/', 
       widget.vehicleType.id.toString(), 
-      widget.token.token
+      widget.token
     );
 
     setState(() {

@@ -5,19 +5,24 @@ import 'package:vehicles_app/models/document_type.dart';
 import 'package:vehicles_app/models/procedure.dart';
 
 import 'package:vehicles_app/models/response.dart';
+import 'package:vehicles_app/models/token.dart';
 import 'package:vehicles_app/models/user.dart';
 import 'package:vehicles_app/models/vehicle_type.dart';
 import 'constants.dart';
 
 class ApiHelper {
-  static Future<Response> getProcedures(String token) async {
+  static Future<Response> getProcedures(Token token) async {
+    if (!_validToken(token)) {
+      return Response(isSuccess: false, message: 'Sus credenciales se han vencido, por favor cierre sesion y vuelva a ingresar al sistema.');
+    }
+
     var url = Uri.parse('${Constants.apiUrl}/api/Procedures');
     var response = await http.get(
     url,
     headers: {
       'content-type' : 'application/json',
       'accept' : 'application/json',
-      'authorization': 'bearer $token'
+      'authorization': 'bearer ${token.token}'
     },
   );
 
@@ -38,14 +43,17 @@ class ApiHelper {
     return Response(isSuccess: true, result: list);
   }
 
-  static Future<Response> getBrands(String token) async {
+  static Future<Response> getBrands(Token token) async {
+    if (!_validToken(token)) {
+      return Response(isSuccess: false, message: 'Sus credenciales se han vencido, por favor cierre sesion y vuelva a ingresar al sistema.');
+    }
     var url = Uri.parse('${Constants.apiUrl}/api/Brands');
     var response = await http.get(
     url,
     headers: {
       'content-type' : 'application/json',
       'accept' : 'application/json',
-      'authorization': 'bearer $token'
+      'authorization': 'bearer ${token.token}'
     },
   );
 
@@ -66,14 +74,17 @@ class ApiHelper {
     return Response(isSuccess: true, result: list);
   }
 
-  static Future<Response> getDocumentTypes(String token) async {
+  static Future<Response> getDocumentTypes(Token token) async {
+    if (!_validToken(token)) {
+      return Response(isSuccess: false, message: 'Sus credenciales se han vencido, por favor cierre sesion y vuelva a ingresar al sistema.');
+    }
     var url = Uri.parse('${Constants.apiUrl}/api/DocumentTypes');
     var response = await http.get(
     url,
     headers: {
       'content-type' : 'application/json',
       'accept' : 'application/json',
-      'authorization': 'bearer $token'
+      'authorization': 'bearer ${token.token}'
     },
   );
 
@@ -94,14 +105,17 @@ class ApiHelper {
     return Response(isSuccess: true, result: list);
   }
 
-  static Future<Response> getVehicleTypes(String token) async {
+  static Future<Response> getVehicleTypes(Token token) async {
+    if (!_validToken(token)) {
+      return Response(isSuccess: false, message: 'Sus credenciales se han vencido, por favor cierre sesion y vuelva a ingresar al sistema.');
+    }
     var url = Uri.parse('${Constants.apiUrl}/api/VehicleTypes');
     var response = await http.get(
     url,
     headers: {
       'content-type' : 'application/json',
       'accept' : 'application/json',
-      'authorization': 'bearer $token'
+      'authorization': 'bearer ${token.token}'
     },
   );
 
@@ -122,14 +136,17 @@ class ApiHelper {
     return Response(isSuccess: true, result: list);
   }
 
-  static Future<Response> put(String controller, String id, Map<String, dynamic> request, String token) async {
+  static Future<Response> put(String controller, String id, Map<String, dynamic> request, Token token) async {
+  if (!_validToken(token)) {
+    return Response(isSuccess: false, message: 'Sus credenciales se han vencido, por favor cierre sesion y vuelva a ingresar al sistema.');
+  }
   var url = Uri.parse('${Constants.apiUrl}$controller$id');
   var response = await http.put(
       url,
       headers: {
         'content-type' : 'application/json',
         'accept' : 'application/json',
-        'authorization': 'bearer $token'
+        'authorization': 'bearer ${token.token}'
       },
       body: jsonEncode(request),
     );
@@ -141,14 +158,17 @@ class ApiHelper {
     return Response(isSuccess: true);
   }
 
-  static Future<Response> post(String controller, Map<String, dynamic> request, String token) async {
+  static Future<Response> post(String controller, Map<String, dynamic> request, Token token) async {
+  if (!_validToken(token)) {
+      return Response(isSuccess: false, message: 'Sus credenciales se han vencido, por favor cierre sesion y vuelva a ingresar al sistema.');
+  }
   var url = Uri.parse('${Constants.apiUrl}$controller');
   var response = await http.post(
       url,
       headers: {
         'content-type' : 'application/json',
         'accept' : 'application/json',
-        'authorization': 'bearer $token'
+        'authorization': 'bearer ${token.token}'
       },
       body: jsonEncode(request),
     );
@@ -160,14 +180,17 @@ class ApiHelper {
     return Response(isSuccess: true);
   }
 
-  static Future<Response> delete(String controller, String id, String token) async {
+  static Future<Response> delete(String controller, String id, Token token) async {
+  if (!_validToken(token)) {
+    return Response(isSuccess: false, message: 'Sus credenciales se han vencido, por favor cierre sesion y vuelva a ingresar al sistema.');
+  }
   var url = Uri.parse('${Constants.apiUrl}$controller$id');
   var response = await http.delete(
       url,
       headers: {
         'content-type' : 'application/json',
         'accept' : 'application/json',
-        'authorization': 'bearer $token'
+        'authorization': 'bearer ${token.token}'
       },
     );
 
@@ -178,14 +201,17 @@ class ApiHelper {
     return Response(isSuccess: true);
   }
 
-  static Future<Response> getUsers(String token) async {
+  static Future<Response> getUsers(Token token) async {
+    if (!_validToken(token)) {
+      return Response(isSuccess: false, message: 'Sus credenciales se han vencido, por favor cierre sesion y vuelva a ingresar al sistema.');
+    }
     var url = Uri.parse('${Constants.apiUrl}/api/Users');
     var response = await http.get(
     url,
     headers: {
       'content-type' : 'application/json',
       'accept' : 'application/json',
-      'authorization': 'bearer $token'
+      'authorization': 'bearer ${token.token}'
     },
   );
 
@@ -204,5 +230,13 @@ class ApiHelper {
     }
 
     return Response(isSuccess: true, result: list);
+  }
+
+  static bool _validToken(Token token) {
+    if (DateTime.parse(token.expiration).isAfter(DateTime.now())) {
+      return true;
+    }
+    
+    return false;
   }
 }
