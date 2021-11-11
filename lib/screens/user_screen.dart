@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:email_validator/email_validator.dart';
@@ -490,12 +491,18 @@ class _UserScreenState extends State<UserScreen> {
                     width: 160,
                 fit: BoxFit.cover,
                   ) 
-                : FadeInImage(
-                    placeholder: AssetImage('assets/vehiclePhoto.png'), 
-                    image: NetworkImage(widget.user.imageFullPath),
-                    width: 160,
+                : CachedNetworkImage(
+                    imageUrl: widget.user.imageFullPath,
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover,
                     height: 160,
-                    fit: BoxFit.cover
+                    width: 160,
+                    placeholder: (context, url) => Image(
+                      image: AssetImage('assets/vehiclePhoto.png'),
+                      fit: BoxFit.cover,
+                      height: 160,
+                      width: 160,
+                    ),
                   ),
               ),
         ),
@@ -678,49 +685,49 @@ class _UserScreenState extends State<UserScreen> {
   }
 
     Future<Null> _getDocumentTypes() async {
-    setState(() {
-      _showLoader = true;
-    });
-
-    var connectivityResult = await Connectivity().checkConnectivity();
-
-    if (connectivityResult == ConnectivityResult.none) {
       setState(() {
-        _showLoader = false;
+        _showLoader = true;
       });
 
-      await showAlertDialog(
-        context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
-        actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
-        ]
-      );
-      return;
+      var connectivityResult = await Connectivity().checkConnectivity();
+
+      if (connectivityResult == ConnectivityResult.none) {
+        setState(() {
+          _showLoader = false;
+        });
+
+        await showAlertDialog(
+          context: context,
+          title: 'Error',
+          message: 'Verifica que estes conectado a internet',
+          actions: <AlertDialogAction>[
+            AlertDialogAction(key: null, label: 'Aceptar'),
+          ]
+        );
+        return;
+      }
+
+      Response response = await ApiHelper.getDocumentTypes(widget.token);
+
+      setState(() {
+          _showLoader = false;
+      });
+
+      if (!response.isSuccess) {
+        await showAlertDialog(
+          context: context,
+          title: 'Error',
+          message: response.message,
+          actions: <AlertDialogAction>[
+            AlertDialogAction(key: null, label: 'Aceptar'),
+          ]
+        );
+        return;
+      }
+      setState(() {
+        _documentTypes = response.result;
+      });
     }
-
-    Response response = await ApiHelper.getDocumentTypes(widget.token);
-
-    setState(() {
-        _showLoader = false;
-    });
-
-    if (!response.isSuccess) {
-      await showAlertDialog(
-        context: context,
-        title: 'Error',
-        message: response.message,
-        actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
-        ]
-      );
-      return;
-    }
-    setState(() {
-      _documentTypes = response.result;
-    });
-  }
 
   List<DropdownMenuItem<int>> _getComboDocumentTypes() {
     List<DropdownMenuItem<int>> list = [];
