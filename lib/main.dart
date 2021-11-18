@@ -8,7 +8,6 @@ import 'package:vehicles_app/screens/home_screen.dart';
 import 'package:vehicles_app/screens/login_screen.dart';
 import 'package:vehicles_app/screens/wait_screen.dart';
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -19,10 +18,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
   bool _isLoading = true;
   bool _showLoginPage = true;
-  late Token _token; 
+  late Token _token;
 
   @override
   void initState() {

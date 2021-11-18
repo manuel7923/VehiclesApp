@@ -1,8 +1,6 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:intl/intl.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
@@ -45,7 +43,7 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
               icon: Icon(Icons.filter_none)
             )
           : IconButton(
-              onPressed:  _showFilter, 
+              onPressed: _showFilter, 
               icon: Icon(Icons.filter_alt)
             )
         ],
@@ -66,65 +64,64 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
     Response response = await ApiHelper.getProcedures(widget.token);
 
     setState(() {
-        _showLoader = false;
+      _showLoader = false;
     });
 
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
+
     setState(() {
       _procedures = response.result;
     });
   }
 
   Widget _getContent() {
-    return _procedures.length == 0
+    return _procedures.length == 0 
       ? _noContent()
       : _getListView();
   }
 
-  _noContent() {
+  Widget _noContent() {
     return Center(
-        child: Container(
-          margin: EdgeInsets.all(20),
-          child: Text(
-            _isFiltered
-            ? 'No hay procedimientos con ese criterio de busqueda'
-            : 'No hay procedimientos registrados.',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold
-            ),
-      ),
+      child: Container(
+        margin: EdgeInsets.all(20),
+        child: Text(
+          _isFiltered
+          ? 'No hay procedimientos con ese criterio de búsqueda.'
+          : 'No hay procedimientos registrados.',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold
+          ),
         ),
+      ),
     );
   }
 
@@ -147,7 +144,7 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
                         Text(
                           e.description, 
                           style: TextStyle(
-                            fontSize: 20
+                            fontSize: 20,
                           ),
                         ),
                         Icon(Icons.arrow_forward_ios),
@@ -159,7 +156,7 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
                         Text(
                           '${NumberFormat.currency(symbol: '\$').format(e.price)}', 
                           style: TextStyle(
-                            fontWeight: FontWeight.bold
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -189,9 +186,8 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
               Text('Escriba las primeras letras del procedimiento'),
               SizedBox(height: 10,),
               TextField(
-                autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'Criterio de busqueda...',
+                  hintText: 'Criterio de búsqueda...',
                   labelText: 'Buscar',
                   suffixIcon: Icon(Icons.search)
                 ),
@@ -212,8 +208,7 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
             ),
           ],
         );
-      }
-    );
+      });
   }
 
   void _removeFilter() {
@@ -229,7 +224,6 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
     }
 
     List<Procedure> filteredList = [];
-    
     for (var procedure in _procedures) {
       if (procedure.description.toLowerCase().contains(_search.toLowerCase())) {
         filteredList.add(procedure);
@@ -246,10 +240,10 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
 
   void _goAdd() async {
     String? result = await Navigator.push(
-      context,
+      context, 
       MaterialPageRoute(
         builder: (context) => ProcedureScreen(
-          token: widget.token,
+          token: widget.token, 
           procedure: Procedure(description: '', id: 0, price: 0),
         )
       )
@@ -261,10 +255,10 @@ class _ProceduresScreenState extends State<ProceduresScreen> {
 
   void _goEdit(Procedure procedure) async {
     String? result = await Navigator.push(
-      context,
+      context, 
       MaterialPageRoute(
         builder: (context) => ProcedureScreen(
-          token: widget.token,
+          token: widget.token, 
           procedure: procedure,
         )
       )

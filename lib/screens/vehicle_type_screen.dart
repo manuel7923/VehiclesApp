@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
 import 'package:vehicles_app/helpers/api_helper.dart';
-import 'package:vehicles_app/models/document_type.dart';
 import 'package:vehicles_app/models/response.dart';
 import 'package:vehicles_app/models/token.dart';
 import 'package:vehicles_app/models/vehicle_type.dart';
@@ -37,11 +36,11 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar( 
+      appBar: AppBar(
         title: Text(
           widget.vehicleType.id == 0 
-          ? 'Nuevo tipo de vehiculo' 
-          : widget.vehicleType.description
+            ? 'Nuevo tipo de vehículo' 
+            : widget.vehicleType.description
         ),
       ),
       body: Stack(
@@ -62,11 +61,10 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     return Container(
       padding: EdgeInsets.all(10),
       child: TextField(
-        autofocus: true,
         controller: _descriptionController,
         decoration: InputDecoration(
-          hintText: 'Ingresa una descripcion...',
-          labelText: 'Descripcion',
+          hintText: 'Ingresa una descripción...',
+          labelText: 'Descripción',
           errorText: _descriptionShowError ? _descriptionError : null,
           suffixIcon: Icon(Icons.description),
           border: OutlineInputBorder(
@@ -96,7 +94,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
                   }
                 ),
               ),
-              onPressed: () => _save(),
+              onPressed: () => _save(), 
             ),
           ),
           widget.vehicleType.id == 0 
@@ -110,13 +108,13 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (Set<MaterialState> states) {
-                        return Color(0xFF84161B);
+                        return Color(0xFFB4161B);
                       }
                     ),
                   ),
-                  onPressed: () => _confirmDelete(),
-                ),
+                  onPressed: () => _confirmDelete(), 
               ),
+          ),
         ],
       ),
     );
@@ -136,8 +134,7 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     if (_description.isEmpty) {
       isValid = false;
       _descriptionShowError = true;
-      _descriptionError = 'Debes ingresar una descripcion.';
-
+      _descriptionError = 'Debes ingresar una descripción.';
     } else {
       _descriptionShowError = false;
     }
@@ -152,20 +149,18 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -186,12 +181,12 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -204,20 +199,18 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -240,12 +233,12 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -253,19 +246,19 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
   }
 
   void _confirmDelete() async {
-      var response = await showAlertDialog(
-        context: context,
-        title: 'Confirmacion',
-        message: 'Estas seguro de querer borrar el registro?',
-        actions: <AlertDialogAction>[
+    var response =  await showAlertDialog(
+      context: context,
+      title: 'Confirmación', 
+      message: '¿Estas seguro de querer borrar el registro?',
+      actions: <AlertDialogAction>[
           AlertDialogAction(key: 'no', label: 'No'),
-          AlertDialogAction(key: 'yes', label: 'Si'),
-        ]
-      );
+          AlertDialogAction(key: 'yes', label: 'Sí'),
+      ]
+    );    
 
-      if (response == 'yes') {
-        _deleteRecord();
-      }
+    if (response == 'yes') {
+      _deleteRecord();
+    }
   }
 
   void _deleteRecord() async {
@@ -274,20 +267,18 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -304,12 +295,12 @@ class _VehicleTypeScreenState extends State<VehicleTypeScreen> {
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 

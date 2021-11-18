@@ -6,7 +6,7 @@ import 'vehicle_photo.dart';
 class Vehicle {
   int id = 0;
   VehicleType vehicleType = VehicleType(id: 0, description: '');
-  Brand brand = Brand(description: '', id: 0);
+  Brand brand = Brand(id: 0, description: '');
   int model = 0;
   String plaque = '';
   String line = '';

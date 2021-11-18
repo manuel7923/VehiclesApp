@@ -1,9 +1,7 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
 import 'package:vehicles_app/helpers/api_helper.dart';
@@ -47,7 +45,7 @@ class _UsersScreenState extends State<UsersScreen> {
               icon: Icon(Icons.filter_none)
             )
           : IconButton(
-              onPressed:  _showFilter, 
+              onPressed: _showFilter, 
               icon: Icon(Icons.filter_alt)
             )
         ],
@@ -68,65 +66,64 @@ class _UsersScreenState extends State<UsersScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
     Response response = await ApiHelper.getUsers(widget.token);
 
     setState(() {
-        _showLoader = false;
+      _showLoader = false;
     });
 
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
+
     setState(() {
       _users = response.result;
     });
   }
 
   Widget _getContent() {
-    return _users.length == 0
+    return _users.length == 0 
       ? _noContent()
       : _getListView();
   }
 
-  _noContent() {
+  Widget _noContent() {
     return Center(
-        child: Container(
-          margin: EdgeInsets.all(20),
-          child: Text(
-            _isFiltered
-            ? 'No hay usuarios con ese criterio de busqueda'
-            : 'No hay usuarios registrados.',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold
-            ),
-      ),
+      child: Container(
+        margin: EdgeInsets.all(20),
+        child: Text(
+          _isFiltered
+          ? 'No hay usuarios con ese criterio de búsqueda.'
+          : 'No hay usuarios registradas.',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold
+          ),
         ),
+      ),
     );
   }
 
@@ -137,7 +134,7 @@ class _UsersScreenState extends State<UsersScreen> {
         children: _users.map((e) {
           return Card(
             child: InkWell(
-              onTap: () => _goInfoUSer(e),
+              onTap: () => _goInfoUser(e),
               child: Container(
                 margin: EdgeInsets.all(10),
                 padding: EdgeInsets.all(5),
@@ -159,14 +156,13 @@ class _UsersScreenState extends State<UsersScreen> {
                         ),
                       ),
                     ),
-                    Expanded(                      
+                    Expanded(
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
                                   e.fullName, 
@@ -179,14 +175,14 @@ class _UsersScreenState extends State<UsersScreen> {
                                 Text(
                                   e.email, 
                                   style: TextStyle(
-                                  fontSize: 14,
+                                    fontSize: 14,
                                   ),
                                 ),
                                 SizedBox(height: 5,),
                                 Text(
-                                  e.phoneNumber, 
+                                  '+${e.countryCode} ${e.phoneNumber}', 
                                   style: TextStyle(
-                                  fontSize: 14,
+                                    fontSize: 14,
                                   ),
                                 ),
                               ],
@@ -221,9 +217,8 @@ class _UsersScreenState extends State<UsersScreen> {
               Text('Escriba las primeras letras del nombre o apellidos del usuario'),
               SizedBox(height: 10,),
               TextField(
-                autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'Criterio de busqueda...',
+                  hintText: 'Criterio de búsqueda...',
                   labelText: 'Buscar',
                   suffixIcon: Icon(Icons.search)
                 ),
@@ -244,8 +239,7 @@ class _UsersScreenState extends State<UsersScreen> {
             ),
           ],
         );
-      }
-    );
+      });
   }
 
   void _removeFilter() {
@@ -261,7 +255,6 @@ class _UsersScreenState extends State<UsersScreen> {
     }
 
     List<User> filteredList = [];
-    
     for (var user in _users) {
       if (user.fullName.toLowerCase().contains(_search.toLowerCase())) {
         filteredList.add(user);
@@ -278,10 +271,11 @@ class _UsersScreenState extends State<UsersScreen> {
 
   void _goAdd() async {
     String? result = await Navigator.push(
-      context,
+      context, 
       MaterialPageRoute(
         builder: (context) => UserScreen(
-          token: widget.token,
+          token: widget.token, 
+          myProfile: false,
           user: User(
             firstName: '', 
             lastName: '', 
@@ -291,12 +285,14 @@ class _UsersScreenState extends State<UsersScreen> {
             imageId: '', 
             imageFullPath: '', 
             userType: 1, 
+            loginType: 0, 
             fullName: '', 
             vehicles: [], 
             vehiclesCount: 0, 
             id: '', 
             userName: '', 
             email: '', 
+            countryCode: '57',
             phoneNumber: ''
           ),
         )
@@ -307,13 +303,14 @@ class _UsersScreenState extends State<UsersScreen> {
     }
   }
 
-  void _goInfoUSer(User user) async {
+  void _goInfoUser(User user) async {
     String? result = await Navigator.push(
-      context,
+      context, 
       MaterialPageRoute(
         builder: (context) => UserInfoScreen(
-          token: widget.token,
+          token: widget.token, 
           user: user,
+          isAdmin: true,
         )
       )
     );

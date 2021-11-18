@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "78849018319",
+    "project_id": "vehicles-980bd",
+    "storage_bucket": "vehicles-980bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:78849018319:android:cddb59ae0279693627eaba",
+        "android_client_info": {
+          "package_name": "com.vehiclesjose.vehicles"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "78849018319-k8m7iv986e59u92nird3tm3jf7q1754i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vehiclesjose.vehicles",
+            "certificate_hash": "8594794f257de8f32b4d0d84edd07d4e4fe74fab"
+          }
+        },
+        {
+          "client_id": "78849018319-3e0i0bmgqdk6msq7vedq9674m62ev8c8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByrrujhb3HlACbDXkLy0kNqlWUKYjbZCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "78849018319-3e0i0bmgqdk6msq7vedq9674m62ev8c8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -10,6 +10,7 @@ import 'package:vehicles_app/models/response.dart';
 import 'package:vehicles_app/models/token.dart';
 import 'package:vehicles_app/models/user.dart';
 import 'package:vehicles_app/models/vehicle.dart';
+import 'package:vehicles_app/screens/history_info_screen.dart';
 import 'package:vehicles_app/screens/history_screen.dart';
 import 'package:vehicles_app/screens/vehicle_screen.dart';
 
@@ -17,8 +18,9 @@ class VehicleInfoScreen extends StatefulWidget {
   final Token token;
   final User user;
   final Vehicle vehicle;
+  final bool isAdmin;
 
-  VehicleInfoScreen({required this.token, required this.user, required this.vehicle});
+  VehicleInfoScreen({required this.token, required this.user, required this.vehicle, required this.isAdmin});
 
   @override
   _VehicleInfoScreenState createState() => _VehicleInfoScreenState();
@@ -42,41 +44,62 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
       ),
       body: Center(
         child: _showLoader 
-        ? LoaderComponent(text: 'Por favor espere...') 
-        : _getContent(),
+          ? LoaderComponent(text: 'Por favor espere...',) 
+          : _getContent(),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => _goHistory(History(
-            date: '', 
-            dateLocal: '', 
-            details: [], 
-            detailsCount: 0, 
-            id: 0, 
-            mileage: 0, 
-            remarks: '', 
-            total: 0, 
-            totalLabor: 0, 
-            totalSpareParts: 0
-          )),
-      ),
+      floatingActionButton: widget.isAdmin 
+        ? FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () => _goAddHistory(History(
+              date: '', 
+              dateLocal: '', 
+              details: [], 
+              detailsCount: 0, 
+              id: 0, 
+              mileage: 0, 
+              remarks: '', 
+              total: 0, 
+              totalLabor: 0, 
+              totalSpareParts: 0
+            )),
+          )
+        : Container()
     );
   }
 
   void _goHistory(History history) async {
-      String? result = await Navigator.push(
-        context, 
-        MaterialPageRoute(
-          builder: (context) => HistoryScreen(
-            token: widget.token, 
-            user: widget.user, 
-            vehicle: _vehicle, 
-            history: history,
-            ))
-      );
-      if (result == 'yes') {
-        await _getVehicle();
-      }
+    String? result = await  Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (context) => HistoryInfoScreen(
+          token: widget.token, 
+          user: widget.user, 
+          vehicle: _vehicle, 
+          history: history,
+          isAdmin: widget.isAdmin,
+        ) 
+      )
+    );
+    if (result == 'yes') {
+      await _getVehicle();
+    }
+  }
+
+  void _goAddHistory(History history) async {
+    String? result = await  Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (context) => HistoryScreen(
+          token: widget.token, 
+          user: widget.user, 
+          vehicle: _vehicle, 
+          history: history,
+        ) 
+      )
+    );
+    if (result == 'yes') {
+      await _getVehicle();
+    }
   }
 
   Widget _getContent() {
@@ -91,7 +114,7 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
   }
 
   Widget _showVehicleInfo() {
-   return Container(
+    return Container(
       margin: EdgeInsets.all(10),
       padding: EdgeInsets.all(5),
       child: Row(
@@ -120,7 +143,7 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                 child: InkWell(
                   onTap: () => _goEdit(),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
+                    borderRadius: BorderRadius.circular(30),
                     child: Container(
                       color: Colors.green[50],
                       height: 40,
@@ -132,11 +155,11 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                       ),
                     ),
                   ),
-                ),
-              ),
+                )
+              )
             ],
           ),
-          Expanded(                      
+          Expanded(
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 10),
               child: Row(
@@ -149,15 +172,15 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                         Row(
                           children: <Widget>[
                             Text(
-                              'Tipo de vehiculo: ', 
+                              'Tipo de vehículo: ', 
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
                             Text(
                               _vehicle.vehicleType.description, 
                               style: TextStyle(
-                              fontSize: 14,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -168,13 +191,13 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                             Text(
                               'Marca: ', 
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
                             Text(
                               _vehicle.brand.description, 
                               style: TextStyle(
-                              fontSize: 14,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -185,13 +208,13 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                             Text(
                               'Modelo: ', 
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
                             Text(
                               _vehicle.model.toString(), 
                               style: TextStyle(
-                              fontSize: 14,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -202,13 +225,13 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                             Text(
                               'Placa: ', 
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
                             Text(
                               _vehicle.plaque, 
                               style: TextStyle(
-                              fontSize: 14,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -217,15 +240,15 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                         Row(
                           children: <Widget>[
                             Text(
-                              'Linea: ', 
+                              'Línea: ', 
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
                             Text(
                               _vehicle.line, 
                               style: TextStyle(
-                              fontSize: 14,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -236,13 +259,13 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                             Text(
                               'Color: ', 
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
                             Text(
                               _vehicle.color, 
                               style: TextStyle(
-                              fontSize: 14,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -253,13 +276,13 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                             Text(
                               'Comentarios: ', 
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
                             Text(
                               _vehicle.remarks == null ? 'NA' : _vehicle.remarks!, 
                               style: TextStyle(
-                              fontSize: 14,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -270,13 +293,13 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                             Text(
                               '# Historias: ', 
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
+                                fontWeight: FontWeight.bold
+                              )
+                            ),
                             Text(
                               _vehicle.historiesCount.toString(), 
                               style: TextStyle(
-                              fontSize: 14,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -289,21 +312,6 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _noContent() {
-    return Center(
-      child: Container(
-        margin: EdgeInsets.all(20),
-        child: Text(
-          'El vehiculo no tiene historias registradas.',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold, 
-          ),
-        ),
       ),
     );
   }
@@ -339,7 +347,7 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                                 Row(
                                   children: [
                                     Text(
-                                      '${e.mileage} kms.',
+                                      '${e.mileage} Kms.',
                                       style: TextStyle(
                                         fontSize: 14,
                                       ),
@@ -400,12 +408,27 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
     );
   }
 
+  Widget _noContent() {
+    return Center(
+      child: Container(
+        margin: EdgeInsets.all(20),
+        child: Text(
+          'El vehículo no tiene historias registradas.',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
   void _goEdit() async {
     String? result = await Navigator.push(
-      context,
+      context, 
       MaterialPageRoute(
         builder: (context) => VehicleScreen(
-          token: widget.token,
+          token: widget.token, 
           user: widget.user, 
           vehicle: _vehicle,
         )
@@ -416,26 +439,24 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
     }
   }
 
-    Future<Null> _getVehicle() async {
+  Future<Null> _getVehicle() async {
     setState(() {
       _showLoader = true;
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -448,12 +469,12 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 

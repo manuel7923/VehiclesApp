@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:vehicles_app/models/response.dart';
@@ -14,6 +13,7 @@ class DisplayPictureScreen extends StatefulWidget {
 }
 
 class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,25 +44,25 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
                       ),
                     ),
                     onPressed: () {
-                      Response response = Response(isSuccess: true, result: widget.image);
+                      Response response = Response(isSuccess:  true, result: widget.image);
                       Navigator.pop(context, response);
-                    },
+                    }, 
                   ),
                 ),
                 SizedBox(width: 10,),
                 Expanded(
                   child: ElevatedButton(
-                    child: Text('Volver a tomar'),
+                    child: Text('Volver a Tomar'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
                         (Set<MaterialState> states) {
-                          return Color(0xFFE0388B);
+                          return Color(0xFFE03B8B);
                         }
                       ),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
-                    },
+                    }, 
                   ),
                 ),
               ],

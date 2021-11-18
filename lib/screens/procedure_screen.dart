@@ -43,11 +43,11 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar( 
+      appBar: AppBar(
         title: Text(
           widget.procedure.id == 0 
-          ? 'Nuevo procedimiento' 
-          : widget.procedure.description
+            ? 'Nuevo procedimiento' 
+            : widget.procedure.description
         ),
       ),
       body: Stack(
@@ -69,11 +69,10 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     return Container(
       padding: EdgeInsets.all(10),
       child: TextField(
-        autofocus: true,
         controller: _descriptionController,
         decoration: InputDecoration(
-          hintText: 'Ingresa una descripcion...',
-          labelText: 'Descripcion',
+          hintText: 'Ingresa una descripción...',
+          labelText: 'Descripción',
           errorText: _descriptionShowError ? _descriptionError : null,
           suffixIcon: Icon(Icons.description),
           border: OutlineInputBorder(
@@ -125,7 +124,7 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
                   }
                 ),
               ),
-              onPressed: () => _save(),
+              onPressed: () => _save(), 
             ),
           ),
           widget.procedure.id == 0 
@@ -139,13 +138,13 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (Set<MaterialState> states) {
-                        return Color(0xFF84161B);
+                        return Color(0xFFB4161B);
                       }
                     ),
                   ),
-                  onPressed: () => _confirmDelete(),
-                ),
+                  onPressed: () => _confirmDelete(), 
               ),
+          ),
         ],
       ),
     );
@@ -165,8 +164,7 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     if (_description.isEmpty) {
       isValid = false;
       _descriptionShowError = true;
-      _descriptionError = 'Debes ingresar una descripcion.';
-
+      _descriptionError = 'Debes ingresar una descripción.';
     } else {
       _descriptionShowError = false;
     }
@@ -175,22 +173,16 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
       isValid = false;
       _priceShowError = true;
       _priceError = 'Debes ingresar un precio.';
-
     } else {
-
       double price = double.parse(_price);
-
       if (price <= 0) {
         isValid = false;
         _priceShowError = true;
-        _priceError = 'Debes ingresar un precio mayor a 0';
-
+        _priceError = 'Debes ingresar un precio mayor a cero.';
       } else {
         _priceShowError = false;
       }
     }
-
-    
 
     setState(() { });
     return isValid;
@@ -202,20 +194,18 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -237,12 +227,12 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -255,20 +245,18 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -292,12 +280,12 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -305,19 +293,19 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
   }
 
   void _confirmDelete() async {
-      var response = await showAlertDialog(
-        context: context,
-        title: 'Confirmacion',
-        message: 'Estas seguro de querer borrar el registro?',
-        actions: <AlertDialogAction>[
+    var response =  await showAlertDialog(
+      context: context,
+      title: 'Confirmación', 
+      message: '¿Estas seguro de querer borrar el registro?',
+      actions: <AlertDialogAction>[
           AlertDialogAction(key: 'no', label: 'No'),
-          AlertDialogAction(key: 'yes', label: 'Si'),
-        ]
-      );
+          AlertDialogAction(key: 'yes', label: 'Sí'),
+      ]
+    );    
 
-      if (response == 'yes') {
-        _deleteRecord();
-      }
+    if (response == 'yes') {
+      _deleteRecord();
+    }
   }
 
   void _deleteRecord() async {
@@ -326,20 +314,18 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
@@ -356,12 +342,12 @@ class _ProcedureScreenState extends State<ProcedureScreen> {
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 

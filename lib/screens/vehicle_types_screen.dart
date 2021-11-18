@@ -1,18 +1,13 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 import 'package:vehicles_app/components/loader_component.dart';
 import 'package:vehicles_app/helpers/api_helper.dart';
-import 'package:vehicles_app/models/document_type.dart';
 import 'package:vehicles_app/models/response.dart';
 import 'package:vehicles_app/models/token.dart';
 import 'package:vehicles_app/models/vehicle_type.dart';
 import 'package:vehicles_app/screens/vehicle_type_screen.dart';
-
-import 'document_type_screen.dart';
 
 class VehicleTypesScreen extends StatefulWidget {
   final Token token;
@@ -39,7 +34,7 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tipos de Vehiculo'),
+        title: Text('Tipos de vehículo'),
         actions: <Widget>[
           _isFiltered
           ? IconButton(
@@ -47,7 +42,7 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
               icon: Icon(Icons.filter_none)
             )
           : IconButton(
-              onPressed:  _showFilter, 
+              onPressed: _showFilter, 
               icon: Icon(Icons.filter_alt)
             )
         ],
@@ -68,65 +63,64 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
-
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
         _showLoader = false;
       });
-
       await showAlertDialog(
         context: context,
-        title: 'Error',
-        message: 'Verifica que estes conectado a internet',
+        title: 'Error', 
+        message: 'Verifica que estes conectado a internet.',
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
 
     Response response = await ApiHelper.getVehicleTypes(widget.token);
 
     setState(() {
-        _showLoader = false;
+      _showLoader = false;
     });
 
     if (!response.isSuccess) {
       await showAlertDialog(
         context: context,
-        title: 'Error',
+        title: 'Error', 
         message: response.message,
         actions: <AlertDialogAction>[
-          AlertDialogAction(key: null, label: 'Aceptar'),
+            AlertDialogAction(key: null, label: 'Aceptar'),
         ]
-      );
+      );    
       return;
     }
+
     setState(() {
       _vehicleTypes = response.result;
     });
   }
 
   Widget _getContent() {
-    return _vehicleTypes.length == 0
+    return _vehicleTypes.length == 0 
       ? _noContent()
       : _getListView();
   }
 
-  _noContent() {
+  Widget _noContent() {
     return Center(
-        child: Container(
-          margin: EdgeInsets.all(20),
-          child: Text(
-            _isFiltered
-            ? 'No hay tipos de vehiculos con ese criterio de busqueda'
-            : 'No hay tipos de vehiculos registrados.',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold
-            ),
-      ),
+      child: Container(
+        margin: EdgeInsets.all(20),
+        child: Text(
+          _isFiltered
+          ? 'No hay tipos de vehículo con ese criterio de búsqueda.'
+          : 'No hay tipos de vehículo registrados.',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold
+          ),
         ),
+      ),
     );
   }
 
@@ -149,7 +143,7 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
                         Text(
                           e.description, 
                           style: TextStyle(
-                            fontSize: 20
+                            fontSize: 20,
                           ),
                         ),
                         Icon(Icons.arrow_forward_ios),
@@ -173,16 +167,15 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          title: Text('Filtrar Tipos de Vehiculo'),
+          title: Text('Filtrar Tipos de Vehículo'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text('Escriba las primeras letras del tipo de vehiculo'),
+              Text('Escriba las primeras letras del tipo de vehículo'),
               SizedBox(height: 10,),
               TextField(
-                autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'Criterio de busqueda...',
+                  hintText: 'Criterio de búsqueda...',
                   labelText: 'Buscar',
                   suffixIcon: Icon(Icons.search)
                 ),
@@ -203,8 +196,7 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
             ),
           ],
         );
-      }
-    );
+      });
   }
 
   void _removeFilter() {
@@ -220,7 +212,6 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
     }
 
     List<VehicleType> filteredList = [];
-    
     for (var vehicleType in _vehicleTypes) {
       if (vehicleType.description.toLowerCase().contains(_search.toLowerCase())) {
         filteredList.add(vehicleType);
@@ -237,10 +228,10 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
 
   void _goAdd() async {
     String? result = await Navigator.push(
-      context,
+      context, 
       MaterialPageRoute(
         builder: (context) => VehicleTypeScreen(
-          token: widget.token,
+          token: widget.token, 
           vehicleType: VehicleType(description: '', id: 0),
         )
       )
@@ -252,10 +243,10 @@ class _VehicleTypesScreenState extends State<VehicleTypesScreen> {
 
   void _goEdit(VehicleType vehicleType) async {
     String? result = await Navigator.push(
-      context,
+      context, 
       MaterialPageRoute(
         builder: (context) => VehicleTypeScreen(
-          token: widget.token,
+          token: widget.token, 
           vehicleType: vehicleType,
         )
       )
